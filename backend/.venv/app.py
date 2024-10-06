@@ -57,7 +57,7 @@ def get_quiz():
         return jsonify({"error": "Failed to decode JSON response"}), 500
     
     #return json to client
-    print(jsonify(quiz_data))
+    # print(jsonify(quiz_data))
     return jsonify(quiz_data)
 
 # run the flask app in debug mode to allow auto reloading while development
