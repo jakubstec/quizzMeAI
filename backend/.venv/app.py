@@ -33,11 +33,15 @@ model = genai.GenerativeModel(
     generation_config=generation_config,
 )
 
+
 #define a route for generating quizes 
-@app.route('/api/get-quiz', methods=['POST'])
+@app.route('/api/generate_quiz', methods=['POST'])
 def get_quiz():
-    #extract user input from POST request's JSON body
-    userQuery = request.json.get("text", "")
+    #get data from input form in json
+    data = request.json
+    
+    input_data = data.get('input')
+    question_distribution = data.get('questionDistribution')
 
     #start a chat session with ai model and give him a query
     chat_session = model.start_chat()

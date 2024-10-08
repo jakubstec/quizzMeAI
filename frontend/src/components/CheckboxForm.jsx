@@ -5,19 +5,20 @@ const CheckboxForm = ({ checkedItems, onCheckboxChange }) => {
     "Multiple Choice Questions",
     "True or False",
     "Open Questions",
-    "Match the Definition"
+    "Fill the Gaps"
   ];
 
   return (
-    <div className='w-3/5 h-auto p-4 m-4 border border-black-500 border-solid'>
+    <div className="w-full max-w-xs p-2 m-2 border border-gray-400 rounded-xl">
       {checkboxLabels.map((label, index) => (
-        <label key={index} className='flex items-center py-1 mb-2'>
+        <label key={index} className="flex items-center py-1 mb-2 text-xs">
           <input
             type="checkbox"
+            className="mr-1"
             checked={checkedItems[index]}
             onChange={() => onCheckboxChange(index)}
           />
-          {label}
+          <span>{label}</span>
         </label>
       ))}
     </div>

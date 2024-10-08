@@ -3,6 +3,7 @@ import Header from '../components/Header';
 import InputForm from '../components/InputForm';
 import CheckboxForm from '../components/CheckboxForm';
 import GenerateButton from '../components/GenerateButton';
+import ButtonGroup from '../components/ButtonGroup';
 
 const Home = () => {
   const [inputValue, setInputValue] = useState('');
@@ -37,19 +38,19 @@ const Home = () => {
 
     let totalQuestions = 0;
 
-    //  fix whole calculating of quiz options
+    //  fix whole calculating of quiz options 😭 and add maybe random option
     const percentages = {
       multipleChoice: 0.4,    
       trueFalse: 0.2,         
       openQuestions: 0.2,     
-      matchDefinition: 0.2
+      fillTheGaps: 0.2
     };
 
     let questionDistribution = {
       multipleChoice: 0,
       trueFalse: 0,
       openQuestions: 0,
-      matchDefinition: 0
+      fillTheGaps: 0
     };
 
     // if user unchecked every box
@@ -79,14 +80,10 @@ const Home = () => {
       totalQuestions += Math.floor(wordCount/100);
     }
 
-    console.log(totalQuestions);
-
-    
-
     if (checkedItems[0]) questionDistribution.multipleChoice += Math.floor(totalQuestions * percentages.multipleChoice);
     if (checkedItems[1]) questionDistribution.trueFalse += Math.floor(totalQuestions * percentages.trueFalse);
     if (checkedItems[2]) questionDistribution.openQuestions += Math.floor(totalQuestions * percentages.openQuestions);
-    if (checkedItems[3]) questionDistribution.matchDefinition += Math.floor(totalQuestions * percentages.matchDefinition);
+    if (checkedItems[3]) questionDistribution.fillTheGaps += Math.floor(totalQuestions * percentages.fillTheGaps);
     
     const distributedQuestions = Object.values(questionDistribution).reduce((sum, value) => sum + value, 0);
 
@@ -109,7 +106,7 @@ const Home = () => {
                   questionDistribution.openQuestions += 1;
                   break;
                 case 3:
-                  questionDistribution.matchDefinition += 1;
+                  questionDistribution.fillTheGaps += 1;
                   break;
               }
               remainderQuestions -= 1;
@@ -129,8 +126,6 @@ const Home = () => {
       wordCount, 
       questionDistribution
     };
-
-
 
     console.log(dataToSend);
   };
@@ -166,11 +161,12 @@ const Home = () => {
             />
           </div>
       
-          <div className="ml-4 w-2/5">
+          <div className="w-2/5 ml-4">
             <CheckboxForm
               checkedItems={checkedItems}
               onCheckboxChange={handleCheckboxChange}
             />
+            <ButtonGroup/>
           </div>
         </div>
 
