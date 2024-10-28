@@ -2,7 +2,7 @@ import React from 'react'
 
 const Header = ({isQuizDisplayed}) => {
   return (
-    <header className='text-3xl center justify-between items-center p-4 bg-white text-black'>
+    <header className='text-3xl -mb-4 center justify-between items-center p-4 bg-white text-black'>
       <div className='logo'>
         <h1 className='mb-2'>quizzme.ai</h1>
         {!isQuizDisplayed && (

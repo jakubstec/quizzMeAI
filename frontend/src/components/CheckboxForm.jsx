@@ -14,7 +14,7 @@ const CheckboxForm = ({ checkedItems, onCheckboxChange }) => {
         <label key={index} className="flex items-center py-1 mb-2 text-xs">
           <input
             type="checkbox"
-            className="mr-1"
+            className="mr-2"
             checked={checkedItems[index]}
             onChange={() => onCheckboxChange(index)}
           />
