@@ -80,7 +80,7 @@ def get_quiz():
         "correct": ["A", "A"]
     }}
     ]
-    Please ensure the response is in **valid JSON** format and does not contain any extra explanations or characters. There are 3 levels of quiz difficulty: easy, medium, hard. User has chosen: {difficulty}.Here is the topic: "{input_data}"
+    Please ensure the response is in **valid JSON** format and does not contain any extra explanations or characters. There are 3 levels of quiz difficulty: easy - simple questions but creative; medium - more intermediate, specific but creative questions that require effort; hard - very specific creative non generic questions, challenging, very intermediate. User has chosen: {difficulty}.Here is the topic: "{input_data}"
     """
 
 

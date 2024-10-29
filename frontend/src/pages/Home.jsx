@@ -136,7 +136,6 @@ const Home = () => {
     const dataToSend = {
       input: !isFileMode ? inputValue : file_to_text,
       questionDistribution,
-      questionTypes: checkedItems,
       selectedDifficulty
     };
 
@@ -232,7 +231,7 @@ const Home = () => {
         </div>
       )}
       {quizData && (
-        <div className="w-full h-full">
+        <div className="w-full h-full -mt-32">
           <QuizComponent quizData={quizData} checkedItems={checkedItems} />
 
           <button
