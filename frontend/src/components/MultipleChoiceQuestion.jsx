@@ -1,9 +1,9 @@
 import React from 'react';
 
-const MultipleChoiceQuestion = ({ question, options, correctOption, selectedOption, onOptionSelect }) => {
+const MultipleChoiceQuestion = ({ question, options, correctOption, selectedOption, onOptionSelect, questionCounter }) => {
   return (
     <div>
-      <p className='mb-4'>question 1/10</p>
+      <p className='mb-4'>{questionCounter}</p>
       <h3 className='text-xl mb-12'>{question}</h3>
       <div className='w-full mt-2 p-2 m-2 grid grid-cols-2 gap-2'>
         {Object.keys(options).map((key) => (

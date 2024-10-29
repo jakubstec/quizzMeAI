@@ -44,7 +44,7 @@ def get_quiz():
     question_distribution = data.get('questionDistribution')
 
     prompt = f"""
-    You are an assistant for a learning platform. Your job is to analyze the provided text or topic and generate questions based on the topic. Please generate the questions using the following structure:
+    You are an assistant for a learning platform. Your job is to analyze the provided text or topic and generate questions based on the topic. Please generate the questions (in language text is provided) using the following structure:
 
     1. {question_distribution.get('multipleChoice')} multiple-choice questions. Format each question like this:
     "multipleChoice": [
@@ -61,7 +61,7 @@ def get_quiz():
         "correct": "true"
     }}
     ],
-    "OpenQuestions": [
+    "openQuestions": [
     3. {question_distribution.get('openQuestions')} open questions. Format each question like this:
     {{
         "question": "Explain the theory of relativity.",

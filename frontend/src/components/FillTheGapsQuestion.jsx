@@ -1,11 +1,11 @@
 import React from 'react';
 
-const FillTheGapsQuestion = ({ question, selectedOptions, onOptionSelect }) => {
+const FillTheGapsQuestion = ({ question, selectedOptions, onOptionSelect, questionCounter }) => {
   const { text, options } = question;
 
   return (
     <div>
-      <p className="mb-4">question 1/10</p>
+      <p className='mb-4'>{questionCounter}</p>
       <h3 className="text-xl mb-12">{text}</h3>
       <div>
         {Object.keys(options).map((gap, index) => (

@@ -1,3 +1,12 @@
+// todo: question counter
+// todo: remember choices
+// todo: show quiz result at the end (check answers correctness)
+// todo: difficulty level choice
+// todo: number of questions based on selected types calculation
+
+// todo: experiment with api response's temperature
+// todo: file OCR reading 
+// todo: change whole design
 import React, { useState } from 'react';
 import MultipleChoiceQuestion from './MultipleChoiceQuestion';
 import TrueFalseQuestion from './TrueFalseQuestion';
@@ -7,11 +16,19 @@ import FillTheGapsQuestion from './FillTheGapsQuestion';
 const QuizComponent = ({ quizData, checkedItems }) => {
   const [currentSection, setCurrentSection] = useState(getDefaultSection(checkedItems));
   const [selectedOption, setSelectedOption] = useState('');
+  const [currentTotalQuestionIndex, setCurrentTotalQuestionIndex] = useState(1);
   const [sectionIndices, setSectionIndices] = useState({
     multipleChoice: 0,
     trueFalse: 0,
     openQuestions: 0,
     fillTheGaps: 0,
+  });
+
+  const [responses, setResponses] = useState({
+    multipleChoice: {},
+    trueFalse: {},
+    OpenQuestions: {},
+    fillTheGaps: {},
   });
 
   function getDefaultSection(checkedItems) {
@@ -32,11 +49,19 @@ const QuizComponent = ({ quizData, checkedItems }) => {
   const currentQuestionIndex = sectionIndices[currentSection] || 0;
   const currentQuestion = currentQuestions ? currentQuestions[currentQuestionIndex] : null;
 
+  const totalQuestions = Object.keys(quizData).reduce((count, section) => {
+    return count + (quizData[section] ? quizData[section].length : 0);
+  }, 0);
+
   if (!currentQuestions || currentQuestions.length === 0) {
     return <div>No questions available in this section</div>;
   }
 
   const handleNext = () => {
+    if(currentTotalQuestionIndex<totalQuestions) {
+      setCurrentTotalQuestionIndex(currentTotalQuestionIndex+1)
+    }
+
     if (currentQuestionIndex < currentQuestions.length - 1) {
       setSectionIndices({
         ...sectionIndices,
@@ -53,6 +78,9 @@ const QuizComponent = ({ quizData, checkedItems }) => {
   };
 
   const handleBack = () => {
+    if(currentTotalQuestionIndex>0) {
+      setCurrentTotalQuestionIndex(currentTotalQuestionIndex-1)
+    }
     if (currentQuestionIndex > 0) {
       setSectionIndices({
         ...sectionIndices,
@@ -68,6 +96,16 @@ const QuizComponent = ({ quizData, checkedItems }) => {
     }
   };
 
+  const handleOptionSelect = (option) => {
+    setResponses((prevResponses) => ({
+      ...prevResponses,
+      [currentSection]: {
+        ...prevResponses[currentSection],
+        [currentQuestionIndex]: option
+      }
+    }));
+  }
+
   function getNextSection(section) {
     const sections = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
     const currentIndex = sections.indexOf(section);
@@ -81,6 +119,9 @@ const QuizComponent = ({ quizData, checkedItems }) => {
   }
 
   const renderQuestion = (question) => {
+    const questionCounter = `Question ${currentTotalQuestionIndex} of ${totalQuestions}`;
+    const selectedOption = responses[currentSection]?.[currentQuestionIndex] || '';
+
     if (currentSection === 'multipleChoice') {
       const { question: questionText, options, correctOption } = question;
       return (
@@ -89,7 +130,8 @@ const QuizComponent = ({ quizData, checkedItems }) => {
           options={options}
           correctOption={correctOption}
           selectedOption={selectedOption}
-          onOptionSelect={setSelectedOption}
+          onOptionSelect={handleOptionSelect}
+          questionCounter={questionCounter}
         />
       );
     }
@@ -100,17 +142,19 @@ const QuizComponent = ({ quizData, checkedItems }) => {
           question={questionText}
           correctOption={correctOption}
           selectedOption={selectedOption}
-          onOptionSelect={setSelectedOption}
+          onOptionSelect={handleOptionSelect}
+          questionCounter={questionCounter}
         />
       );
     }
     if (currentSection === 'openQuestions') {
-      console.log(currentQuestion);
       const { question: questionText } = question;
       return (
         <OpenQuestion
           question={{questionText }}
-          onAnswerChange={(answer) => setSelectedOption(answer)}
+          selectedAnswer={selectedOption}
+          onAnswerChange={(answer) => handleOptionSelect(answer)}
+          questionCounter={questionCounter}
         />
       );
     }
@@ -121,8 +165,9 @@ const QuizComponent = ({ quizData, checkedItems }) => {
           question={{ text, options }}
           selectedOptions={selectedOption}
           onOptionSelect={(gap, value) =>
-            setSelectedOption({ ...selectedOption, [gap]: value })
+            handleOptionSelect({ ...selectedOption, [gap]: value })
           }
+          questionCounter={questionCounter}
         />
       );
     }
@@ -130,8 +175,8 @@ const QuizComponent = ({ quizData, checkedItems }) => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-lg shadow-md w-full max-w-2xl">
+    <div className="flex justify-center items-center min-h-screen -mt-16">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
         <div className="max-w-screen-md mx-auto">
           {renderQuestion(currentQuestion)}
         </div>
