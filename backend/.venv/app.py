@@ -22,7 +22,7 @@ genai.configure(api_key=API_KEY)
 #model configuration
 generation_config = {
     "temperature": 0.8,
-    "top_p": 0.95,
+    "top_p": 0.9,
     "top_k": 64,
     "max_output_tokens": 1000,
     "response_mime_type": "application/json",  # Ensure response is JSON
@@ -42,6 +42,7 @@ def get_quiz():
     
     input_data = data.get('input')
     question_distribution = data.get('questionDistribution')
+    difficulty = data.get('selectedDifficulty')
 
     prompt = f"""
     You are an assistant for a learning platform. Your job is to analyze the provided text or topic and generate questions based on the topic. Please generate the questions (in language text is provided) using the following structure:
@@ -79,7 +80,7 @@ def get_quiz():
         "correct": ["A", "A"]
     }}
     ]
-    Please ensure the response is in **valid JSON** format and does not contain any extra explanations or characters. Here is the topic: "{input_data}"
+    Please ensure the response is in **valid JSON** format and does not contain any extra explanations or characters. There are 3 levels of quiz difficulty: easy, medium, hard. User has chosen: {difficulty}.Here is the topic: "{input_data}"
     """
 
 
@@ -101,8 +102,6 @@ def get_quiz():
         return jsonify({"error": "Failed to decode JSON response"}), 500
     
     #return json to client
-    # print(jsonify(quiz_data))
-    print("success")
     return jsonify(quiz_data)
 
 # run the flask app in debug mode to allow auto reloading while development

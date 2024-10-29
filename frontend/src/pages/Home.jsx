@@ -13,7 +13,10 @@ const Home = () => {
   const [isFileMode, setIsFileMode] = useState(false);
   const [loading, setLoading] = useState(false);
   const [quizData, setQuizData] = useState(null);
+  const [selectedQuestionNumber, setSelectedQuestionNumber] = useState('default');
+  const [selectedDifficulty, setSelectedDifficulty] = useState('normal');
 
+  
   const handleInputChange = (value) => {
     setInputValue(value);
   };
@@ -68,7 +71,7 @@ const Home = () => {
 
     let totalQuestions = 0;
 
-    //  fix whole calculating of quiz options 😭 and add maybe random option
+    //  fix whole calculating of quiz options
     const percentages = {
       multipleChoice: 0.4,    
       trueFalse: 0.2,         
@@ -132,9 +135,9 @@ const Home = () => {
 
     const dataToSend = {
       input: !isFileMode ? inputValue : file_to_text,
-      //checkboxes: checkedItems, 
-      //wordCount, 
-      questionDistribution
+      questionDistribution,
+      questionTypes: checkedItems,
+      selectedDifficulty
     };
 
     try {
@@ -197,9 +200,9 @@ const Home = () => {
               onCheckboxChange={handleCheckboxChange}
             />
             <p className='text-xs'>Number of questions</p>
-            <ButtonGroup/>
+            <ButtonGroup selectedButton={selectedQuestionNumber} onButtonClick={setSelectedQuestionNumber} />
             <p className='text-xs'>Difficulty level</p>
-            <DifficultyButtonGroup/>
+            <DifficultyButtonGroup selectedButton={selectedDifficulty} onButtonClick={setSelectedDifficulty} />
           </div>
         </div>
 

@@ -1,12 +1,3 @@
-// todo: question counter
-// todo: remember choices
-// todo: show quiz result at the end (check answers correctness)
-// todo: difficulty level choice
-// todo: number of questions based on selected types calculation
-
-// todo: experiment with api response's temperature
-// todo: file OCR reading 
-// todo: change whole design
 import React, { useState } from 'react';
 import MultipleChoiceQuestion from './MultipleChoiceQuestion';
 import TrueFalseQuestion from './TrueFalseQuestion';
