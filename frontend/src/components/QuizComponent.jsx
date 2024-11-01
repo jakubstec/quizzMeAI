@@ -149,58 +149,43 @@ function getPreviousSection(section) {
 }
 
 
-const handleOptionSelect = (option) => {
-  let isCorrect = 0;
-
+const handleOptionSelect = (gap, value) => {
   if (currentSection === "fillTheGaps") {
-    const isFillTheGapsCorrect = (option, correct) => {
-      const selectedValues = Object.values(option);
-
-      return (
-        selectedValues.length === correct.length &&
-        selectedValues.every((value, index) => value === correct[index])
-      );
-    };
-
-    isCorrect = isFillTheGapsCorrect(option, currentQuestion.correct);
-
+    setSelectedOption((prevSelected) => ({
+      ...prevSelected,
+      [gap]: value,
+    }));
+    
+    const isCorrect = isFillTheGapsCorrect({ [gap]: value }, currentQuestion.correct);
     setResponses((prevResponses) => ({
       ...prevResponses,
       [currentSection]: {
         ...prevResponses[currentSection],
         [currentQuestionIndex]: {
-          option,
-          isCorrect,
-        },
-      },
+          option: { ...selectedOption, [gap]: value }, 
+          isCorrect
+        }
+      }
     }));
   } else {
-    isCorrect = option === currentQuestion.correct;
-
+    const isCorrect = value === currentQuestion.correct;
     setResponses((prevResponses) => ({
       ...prevResponses,
       [currentSection]: {
         ...prevResponses[currentSection],
         [currentQuestionIndex]: {
-          option,
-          isCorrect,
-        },
-      },
+          option: value,
+          isCorrect
+        }
+      }
     }));
   }
-
-  setScore((prevScore) => {
-    const prevAnswer = responses[currentSection]?.[currentQuestionIndex];
-    if (prevAnswer) {
-      if (prevAnswer.isCorrect && !isCorrect) return prevScore - 1;
-      if (!prevAnswer.isCorrect && isCorrect) return prevScore + 1;
-    } else {
-      return isCorrect ? prevScore + 1 : prevScore;
-    }
-    return prevScore;
-  });
 };
 
+  const isFillTheGapsCorrect = (selected, correct) => {
+    const selectedValues = Object.values(selected);
+    return selectedValues.length === correct.length && selectedValues.every((value, index) => value === correct[index]);
+  };
 
   function collectIncorrectQuestions() {
     const incorrect = [];
@@ -267,9 +252,7 @@ const handleOptionSelect = (option) => {
         <FillTheGapsQuestion
           question={{ text, options }}
           selectedOptions={selectedOption}
-          onOptionSelect={(gap, value) =>
-            handleOptionSelect({ gap, value })
-          }
+          onOptionSelect={handleOptionSelect}
           questionCounter={questionCounter}
         />
       );
@@ -349,7 +332,7 @@ const handleOptionSelect = (option) => {
       <div className="flex justify-center items-center min-h-screen mt-8">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
           <h2 className="text-xl font-bold mb-4">Quiz Results</h2>
-          <p>Your Score: {score} correct answers!</p>
+          <p>Your number of correct answers: {score}!</p>
           <br/>
           {renderIncorrectQuestions()}
         </div>
