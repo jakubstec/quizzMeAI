@@ -103,6 +103,6 @@ def get_quiz():
     #return json to client
     return jsonify(quiz_data)
 
-# run the flask app
+# run the flask app!
 if __name__ == '__main__':
     app.run()
