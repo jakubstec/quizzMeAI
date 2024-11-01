@@ -1,0 +1,7 @@
+{
+    "functions": {
+      ".venv/**/*.py": {
+        "runtime": "python3.12"
+      }
+    }
+  }

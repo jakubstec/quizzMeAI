@@ -107,7 +107,7 @@ const handleBack = () => {
         });
         setSelectedOption('');
     } else {
-        const previousSection = getPreviousSection(currentSection);
+        let previousSection = getPreviousSection(currentSection);
         
         while (previousSection) {
             const sectionIndex = questionTypes.indexOf(previousSection);
