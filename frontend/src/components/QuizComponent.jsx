@@ -4,7 +4,7 @@ import TrueFalseQuestion from './TrueFalseQuestion';
 import OpenQuestion from './OpenQuestion';
 import FillTheGapsQuestion from './FillTheGapsQuestion';
 
-const QuizComponent = ({ quizData, checkedItems }) => {
+const QuizComponent = ({ quizData, checkedItems, totalQuestions }) => {
   const [currentSection, setCurrentSection] = useState(getDefaultSection(checkedItems));
   const [selectedOption, setSelectedOption] = useState('');
   const [currentTotalQuestionIndex, setCurrentTotalQuestionIndex] = useState(1);
@@ -41,57 +41,113 @@ const QuizComponent = ({ quizData, checkedItems }) => {
 
   const currentQuestions = quizData[currentSection];
   const currentQuestionIndex = sectionIndices[currentSection] || 0;
-  const currentQuestion = currentQuestions ? currentQuestions[currentQuestionIndex] : null;
+  const totalQuestionsInCurrentSection = currentQuestions ? currentQuestions.length : 0;
 
-  const totalQuestions = Object.keys(quizData).reduce((count, section) => {
-    return count + (quizData[section] ? quizData[section].length : 0);
-  }, 0);
+  if (totalQuestionsInCurrentSection === 0) {
+    const nextSection = getNextSection(currentSection);
+    if (nextSection) {
+      setCurrentSection(nextSection); 
+    } else {
+      setQuizComplete(true)
+    }
+    return null;
+  }
+
+  const currentQuestion = currentQuestions[currentQuestionIndex];
 
   if (!currentQuestions || currentQuestions.length === 0) {
     return <div>No questions available in this section</div>;
   }
 
   const handleNext = () => {
-    if(currentTotalQuestionIndex<totalQuestions) {
-      setCurrentTotalQuestionIndex(currentTotalQuestionIndex+1)
+    const questionTypes = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
+
+    if (currentTotalQuestionIndex < totalQuestions) {
+        setCurrentTotalQuestionIndex(currentTotalQuestionIndex + 1);
     }
 
     if (currentQuestionIndex < currentQuestions.length - 1) {
-      setSectionIndices({
-        ...sectionIndices,
-        [currentSection]: currentQuestionIndex + 1,
-      });
-      setSelectedOption('');
-    } else {
-      const nextSection = getNextSection(currentSection);
-      if (nextSection) {
-        setCurrentSection(nextSection);
+        setSectionIndices({
+            ...sectionIndices,
+            [currentSection]: currentQuestionIndex + 1,
+        });
         setSelectedOption('');
-      } else {
-        setQuizComplete(true);
-        collectIncorrectQuestions();
-      }
-    }
-  };
+    } else {
+        let nextSection = getNextSection(currentSection);
 
-  const handleBack = () => {
-    if(currentTotalQuestionIndex>0) {
-      setCurrentTotalQuestionIndex(currentTotalQuestionIndex-1)
+        while (nextSection) {
+            const sectionIndex = questionTypes.indexOf(nextSection);
+            if (sectionIndex !== -1 && checkedItems[sectionIndex] && quizData[nextSection] && quizData[nextSection].length > 0) {
+                break;
+            }
+            nextSection = getNextSection(nextSection);
+        }
+
+        if (nextSection) {
+            setCurrentSection(nextSection);
+            setSelectedOption('');
+        } else {
+            setQuizComplete(true);
+            collectIncorrectQuestions();
+        }
     }
+};
+
+const handleBack = () => {
+    const questionTypes = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
+
+    if (currentTotalQuestionIndex > 0) {
+        setCurrentTotalQuestionIndex(currentTotalQuestionIndex - 1);
+    }
+
     if (currentQuestionIndex > 0) {
-      setSectionIndices({
-        ...sectionIndices,
-        [currentSection]: currentQuestionIndex - 1,
-      });
-      setSelectedOption('');
-    } else {
-      const previousSection = getPreviousSection(currentSection);
-      if (previousSection) {
-        setCurrentSection(previousSection);
+        setSectionIndices({
+            ...sectionIndices,
+            [currentSection]: currentQuestionIndex - 1,
+        });
         setSelectedOption('');
-      }
+    } else {
+        const previousSection = getPreviousSection(currentSection);
+        
+        while (previousSection) {
+            const sectionIndex = questionTypes.indexOf(previousSection);
+            if (sectionIndex !== -1 && checkedItems[sectionIndex] && quizData[previousSection] && quizData[previousSection].length > 0) {
+                break;
+            }
+            previousSection = getPreviousSection(previousSection);
+        }
+
+        if (previousSection) {
+            setCurrentSection(previousSection);
+            setSelectedOption('');
+        }
     }
-  };
+};
+
+function getNextSection(section) {
+    const sections = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
+    const currentIndex = sections.indexOf(section);
+    
+    for (let i = currentIndex + 1; i < sections.length; i++) {
+        if (checkedItems[i] && quizData[sections[i]] && quizData[sections[i]].length > 0) {
+            return sections[i];
+        }
+    }
+    return null;
+}
+
+function getPreviousSection(section) {
+    const sections = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
+    const currentIndex = sections.indexOf(section);
+    
+    for (let i = currentIndex - 1; i >= 0; i--) {
+        if (checkedItems[i] && quizData[sections[i]] && quizData[sections[i]].length > 0) {
+            return sections[i];
+        }
+    }
+    return null;
+}
+
 
   const handleOptionSelect = (option) => {
     let isCorrect = 0;
@@ -107,9 +163,6 @@ const QuizComponent = ({ quizData, checkedItems }) => {
     } else {
       isCorrect = option === currentQuestion.correct;
     }
-
-    console.log(isCorrect);
-
     setResponses((prevResponses) => ({
       ...prevResponses,
       [currentSection]: {
@@ -153,23 +206,11 @@ const QuizComponent = ({ quizData, checkedItems }) => {
     setIncorrectQuestions(incorrect);
   }
 
-  function getNextSection(section) {
-    const sections = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
-    const currentIndex = sections.indexOf(section);
-    return currentIndex < sections.length - 1 ? sections[currentIndex + 1] : null;
-  }
-
-  function getPreviousSection(section) {
-    const sections = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
-    const currentIndex = sections.indexOf(section);
-    return currentIndex > 0 ? sections[currentIndex - 1] : null;
-  }
 
   const renderQuestion = (question) => {
     const questionCounter = `Question ${currentTotalQuestionIndex} of ${totalQuestions}`;
     const selectedOption = responses[currentSection]?.[currentQuestionIndex]?.option || '';
-
-    if (currentSection === 'multipleChoice') {
+    if (currentSection === 'multipleChoice' && checkedItems[0]) {
       const { question: questionText, options, correctOption } = question;
       return (
         <MultipleChoiceQuestion
@@ -182,7 +223,7 @@ const QuizComponent = ({ quizData, checkedItems }) => {
         />
       );
     }
-    if (currentSection === 'trueFalse') {
+    if (currentSection === 'trueFalse' && checkedItems[1]) {
       const { question: questionText, correctOption } = question;
       return (
         <TrueFalseQuestion
@@ -194,87 +235,98 @@ const QuizComponent = ({ quizData, checkedItems }) => {
         />
       );
     }
-    if (currentSection === 'openQuestions') {
+    if (currentSection === 'openQuestions' && checkedItems[2]) {
       const { question: questionText } = question;
       return (
         <OpenQuestion
-          question={{questionText }}
+          question={{ questionText }}
           selectedAnswer={selectedOption}
           onAnswerChange={(answer) => handleOptionSelect(answer)}
           questionCounter={questionCounter}
         />
       );
     }
-    if (currentSection === 'fillTheGaps') {
+    if (currentSection === 'fillTheGaps' && checkedItems[3]) {
       const { text, options } = question;
       return (
         <FillTheGapsQuestion
           question={{ text, options }}
           selectedOptions={selectedOption}
           onOptionSelect={(gap, value) =>
-            handleOptionSelect({ ...selectedOption, [gap]: value })
+            handleOptionSelect({ gap, value })
           }
           questionCounter={questionCounter}
         />
       );
     }
-    return <div>Error</div>;
+    return "Error";
   };
 
-  const renderIncorrectQuestions = () => (
-    <div>
-      <h2 className="text-xl font-bold mb-4">Review Incorrect or Unanswered Questions</h2>
-      {incorrectQuestions.map((item, index) => {
-        const { question, userAnswer, correctAnswer, section } = item;
-        const isFillTheGaps = section === 'fillTheGaps';
-        const isOpenQuestion = section === 'openQuestions';
-        const answerLabel = isOpenQuestion ? 'Suggested Answer' : 'Correct Answer';
-  
-        const formatCorrectAnswer = () => {
-          if (isFillTheGaps) {
-            return question.correct.map((correctKey, idx) => {
-              const gapKey = `gap${idx + 1}`;
-              const gapOptions = question.options[gapKey] || {};
-              return gapOptions[correctKey] || 'N/A';
-            }).join(', ');
-          } else if (section === 'multipleChoice') {
-            return question.options[correctAnswer] || 'N/A';
-          }
-          return correctAnswer;
-        };
-  
-        const formatUserAnswer = () => {
-          if (!userAnswer || userAnswer === 'No answer selected') return 'No answer selected';
-          if (isFillTheGaps) {
-            return Object.entries(userAnswer)
-              .map(([gap, value]) => {
-                const gapOptions = question.options?.[gap] || {};
-                return `${gap}: ${gapOptions[value] || 'N/A'}`;
-              })
-              .join(', ');
-          }
-          return section === 'multipleChoice' ? question.options[userAnswer] : userAnswer;
-        };
-  
-        const descriptiveCorrectAnswer = formatCorrectAnswer();
-  
-        return (
-          <div key={index} className="mb-6 p-4 border rounded-md bg-gray-100">
-            <h3 className="text-lg font-semibold mb-2">
-              {isFillTheGaps ? question.text : question.question || question.text}
-            </h3>
-            <div className="text-sm text-gray-700 mb-2">
-              <strong>Question Type:</strong> {section.replace(/([A-Z])/g, ' $1')}
-            </div>
-            <div className="mb-2">
-              <p className="text-red-600 font-semibold">Your answer: {formatUserAnswer()}</p>
-              <p className="text-green-600 font-semibold">{answerLabel}: {isOpenQuestion ? question.suggestedAnswer : descriptiveCorrectAnswer}</p>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
+  const renderIncorrectQuestions = () => {
+    const sections = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
+    
+    const filteredIncorrectQuestions = incorrectQuestions.filter((item) => {
+        const sectionIndex = sections.indexOf(item.section);
+        return sectionIndex !== -1 && checkedItems[sectionIndex];
+    });
+
+    if (filteredIncorrectQuestions.length === 0) {
+        return <p>No incorrect questions to review for the active sections.</p>;
+    }
+
+    return (
+        <div>
+            <h2 className="text-xl font-bold mb-4">Review Incorrect Questions!</h2>
+            {filteredIncorrectQuestions.map((item, index) => {
+                const { question, userAnswer, correctAnswer, section } = item;
+                const isFillTheGaps = section === 'fillTheGaps';
+                const isOpenQuestion = section === 'openQuestions';
+                const answerLabel = isOpenQuestion ? 'Suggested Answer' : 'Correct Answer';
+
+                const formatCorrectAnswer = () => {
+                    if (isFillTheGaps) {
+                        return question.correct.map((correctKey, idx) => {
+                            const gapKey = `gap${idx + 1}`;
+                            const gapOptions = question.options[gapKey] || {};
+                            return gapOptions[correctKey] || 'N/A';
+                        }).join(', ');
+                    } else if (section === 'multipleChoice') {
+                        return question.options[correctAnswer] || 'N/A';
+                    }
+                    return correctAnswer;
+                };
+
+                const formatUserAnswer = () => {
+                    if (!userAnswer || userAnswer === 'No answer selected') return 'No answer selected';
+                    if (isFillTheGaps) {
+                        return Object.entries(userAnswer)
+                            .map(([gap, value]) => {
+                                const gapOptions = question.options?.[gap] || {};
+                                return `${gap}: ${gapOptions[value] || 'N/A'}`;
+                            })
+                            .join(', ');
+                    }
+                    return section === 'multipleChoice' ? question.options[userAnswer] : userAnswer;
+                };
+
+                const descriptiveCorrectAnswer = formatCorrectAnswer();
+
+                return (
+                    <div key={index} className="mb-6 p-4 border rounded-md bg-gray-100">
+                        <h3 className="text-lg font-semibold mb-2">
+                            {isFillTheGaps ? question.text : question.question || question.text}
+                        </h3>
+                        <div className="mb-2">
+                            <p className="text-red-600 font-semibold">Your answer: {formatUserAnswer()}</p>
+                            <p className="text-green-600 font-semibold">{answerLabel}: {isOpenQuestion ? question.suggestedAnswer : descriptiveCorrectAnswer}</p>
+                        </div>
+                    </div>
+                );
+            })}
+        </div>
+    );
+};
+
   
   
   if (quizComplete) {
@@ -308,7 +360,7 @@ const QuizComponent = ({ quizData, checkedItems }) => {
               className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
               onClick={handleNext}
             >
-              {currentSection === 'fillTheGaps' && currentQuestionIndex === currentQuestions.length - 1
+              {currentTotalQuestionIndex === totalQuestions
                 ? 'Finish'
                 : 'Next'}
             </button>

@@ -23,8 +23,8 @@ genai.configure(api_key=API_KEY)
 generation_config = {
     "temperature": 0.8,
     "top_p": 0.9,
-    "top_k": 64,
-    "max_output_tokens": 1000,
+    "top_k": 80,
+    "max_output_tokens": 1500,
     "response_mime_type": "application/json",  # Ensure response is JSON
 }
 
@@ -45,9 +45,9 @@ def get_quiz():
     difficulty = data.get('selectedDifficulty')
 
     prompt = f"""
-    You are an assistant for a learning platform. Your job is to analyze the provided text or topic and generate questions based on the topic. Please generate the questions (in language text is provided) using the following structure:
+    You are an assistant for a learning platform. Your job is to analyze the provided text or topic and generate questions based on the topic. Please generate the questions (in language text is provided). If it says for example "0 multiplechoice questions" using the following structure:
 
-    1. {question_distribution.get('multipleChoice')} multiple-choice questions. Format each question like this:
+    {question_distribution.get('multipleChoice')} multiple-choice questions (A B C D). Format each question like this:
     "multipleChoice": [
     {{
         "question": "What is the capital of France?",
@@ -55,22 +55,22 @@ def get_quiz():
         "correct": "C"
     }}
     ],
+    {question_distribution.get('trueFalse')} true or false questions. Format each question like this:
     "trueFalse": [
-    2. {question_distribution.get('trueFalse')} true or false questions. Format each question like this:
     {{
         "question": "The sky is blue.",
         "correct": "true"
     }}
     ],
+    {question_distribution.get('openQuestions')} open questions. Format each question like this:
     "openQuestions": [
-    3. {question_distribution.get('openQuestions')} open questions. Format each question like this:
     {{
         "question": "Explain the theory of relativity.",
         "suggestedAnswer": "The theory of relativity is ..."
     }}
     ],
+    {question_distribution.get('fillTheGaps')} fill-the-gaps questions. Format each like this:
     "fillTheGaps": [
-    4. {question_distribution.get('fillTheGaps')} fill-the-gaps questions. Format each like this:
     {{
         "text": "The quick ___ fox jumps over the ___ dog.",
         "options": {{
@@ -80,7 +80,7 @@ def get_quiz():
         "correct": ["A", "A"]
     }}
     ]
-    Please ensure the response is in **valid JSON** format and does not contain any extra explanations or characters. There are 3 levels of quiz difficulty: easy - simple questions but creative; medium - more intermediate, specific but creative questions that require effort; hard - very specific creative non generic questions, challenging, very intermediate. User has chosen: {difficulty}.Here is the topic: "{input_data}"
+    Please ensure the response is in **valid JSON** format and does not contain any extra explanations or characters. There are 3 levels of quiz difficulty: easy (treat as normal) - simple questions but creative; normal (treat as hard) - more intermediate, specific but creative questions that require effort; hard (treat as very hard) - very specific creative non generic questions, challenging, very intermediate. User has chosen: {difficulty}.Here is the topic: "{input_data}"
     """
 
 
@@ -90,7 +90,6 @@ def get_quiz():
     response = chat_session.send_message(prompt)
 
     quiz_json = response.text
-
     try:
         # try to parse bot response as a JSON
         # and convert it into python dictionary

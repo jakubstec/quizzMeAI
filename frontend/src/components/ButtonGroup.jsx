@@ -8,20 +8,20 @@ const ButtonGroup = ({ selectedButton, onButtonClick }) => {
         Default
       </button>
       <button
-        className={`py-2 px-2 text-xs rounded-lg ${selectedButton === '0-5' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        onClick={() => onButtonClick('0-5')}
+        className={`py-2 px-2 text-xs rounded-lg ${selectedButton === '4' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+        onClick={() => onButtonClick('4')}
       >
-        0-5
+        1-5
       </button>
       <button
-        className={`py-2 px-2 text-xs rounded-lg ${selectedButton === '5-10' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        onClick={() => onButtonClick('5-10')}
+        className={`py-2 px-2 text-xs rounded-lg ${selectedButton === '8' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+        onClick={() => onButtonClick('8')}
       >
         5-10
       </button>
       <button
-        className={`text-xs rounded-lg ${selectedButton === '10-15' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
-        onClick={() => onButtonClick('10-15')}
+        className={`text-xs rounded-lg ${selectedButton === '12' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+        onClick={() => onButtonClick('12')}
       >
         10-15
       </button>

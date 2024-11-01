@@ -15,7 +15,7 @@ const Home = () => {
   const [quizData, setQuizData] = useState(null);
   const [selectedQuestionNumber, setSelectedQuestionNumber] = useState('default');
   const [selectedDifficulty, setSelectedDifficulty] = useState('normal');
-
+  const [totalQuestions, setTotalQuestions] = useState(0);
   
   const handleInputChange = (value) => {
     setInputValue(value);
@@ -29,10 +29,8 @@ const Home = () => {
 
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
-    console.log('Uploaded file:', file);
     // todo ocr (file to text conversion)
     // todo show file name after upload (InputForm.jsx)
-
     const file_to_text = "bb";
   }
 
@@ -43,7 +41,6 @@ const Home = () => {
     setCheckedItems([true,true,true,true]);
     setIsFileMode(false);
     setQuizData(null);
-  
   };
 
   const file_to_text = "aa";
@@ -69,76 +66,28 @@ const Home = () => {
 
     setLoading(true);
 
-    let totalQuestions = 0;
+    const basePercentage = 1 / activeTypes;
+    const totalQuestionsCount = parseInt(selectedQuestionNumber) || activeTypes * 4;
+    setTotalQuestions(totalQuestionsCount);
 
-    //  fix whole calculating of quiz options
-    const percentages = {
-      multipleChoice: 0.4,    
-      trueFalse: 0.2,         
-      openQuestions: 0.2,     
-      fillTheGaps: 0.2
-    };
+    let questionDistribution = { multipleChoice: 0, trueFalse: 0, openQuestions: 0, fillTheGaps: 0 };
+    const questionTypes = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
 
-    let questionDistribution = {
-      multipleChoice: 0,
-      trueFalse: 0,
-      openQuestions: 0,
-      fillTheGaps: 0
-    };
-
-    checkedItems.forEach((isChecked) => {
-      if (isChecked) {
-        totalQuestions++;
-      }
-    })
-
-    // user wrote probably wrote an topic, not a note
-    // so API might use general knowledge to generate a quiz
-    if(wordCount < 30) {
-      totalQuestions = 10;
-    } else {
-      // might change to /75
-      totalQuestions += Math.floor(wordCount/100);
-    }
-
-    if (checkedItems[0]) questionDistribution.multipleChoice += Math.floor(totalQuestions * percentages.multipleChoice);
-    if (checkedItems[1]) questionDistribution.trueFalse += Math.floor(totalQuestions * percentages.trueFalse);
-    if (checkedItems[2]) questionDistribution.openQuestions += Math.floor(totalQuestions * percentages.openQuestions);
-    if (checkedItems[3]) questionDistribution.fillTheGaps += Math.floor(totalQuestions * percentages.fillTheGaps);
-    
-    const distributedQuestions = Object.values(questionDistribution).reduce((sum, value) => sum + value, 0);
-
-    let remainderQuestions = totalQuestions - distributedQuestions;
-
-    if (remainderQuestions > 0) {
-          for (let i = 0; i < checkedItems.length; i++) {
-            if (checkedItems[i] && remainderQuestions > 0) {
-              // Assign extra questions to first available checked types
-              switch (i) {
-                case 0:
-                  questionDistribution.multipleChoice += 1;
-                  break;
-                case 1:
-                  questionDistribution.trueFalse += 1;
-                  break;
-                case 2:
-                  questionDistribution.openQuestions += 1;
-                  break;
-                case 3:
-                  questionDistribution.fillTheGaps += 1;
-                  break;
-              }
-              remainderQuestions -= 1;
-            }
-          }
+    checkedItems.forEach((isChecked, index) => {
+        if (isChecked) {
+            const type = questionTypes[index];
+            questionDistribution[type] = Math.ceil(totalQuestionsCount * basePercentage);
         }
+    });
+    
+    console.log(totalQuestionsCount);
+    console.log(questionDistribution);
 
     const dataToSend = {
-      input: !isFileMode ? inputValue : file_to_text,
+      input: !isFileMode ? inputValue : fileToText,
       questionDistribution,
       selectedDifficulty
     };
-
     try {
       const response = await fetch('http://localhost:5000/', {
         method: 'POST',
@@ -232,7 +181,7 @@ const Home = () => {
       )}
       {quizData && (
         <div className="w-full h-full -mt-32">
-          <QuizComponent quizData={quizData} checkedItems={checkedItems} />
+          <QuizComponent quizData={quizData} checkedItems={checkedItems} totalQuestions={totalQuestions}/>
 
           <button
             onClick={handleGoBack}
