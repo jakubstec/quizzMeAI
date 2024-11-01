@@ -103,6 +103,6 @@ def get_quiz():
     #return json to client
     return jsonify(quiz_data)
 
-# run the flask app in debug mode to allow auto reloading while development
+# run the flask app
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run()
