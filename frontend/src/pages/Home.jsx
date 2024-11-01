@@ -87,7 +87,7 @@ const Home = () => {
     };
     try {
       // change to vercel app
-      const response = await fetch('http://localhost:5000/', {
+      const response = await fetch('https://quizz-me-ai.vercel.app/', {
         method: 'POST',
         headers: {
           'Content-type': 'application/json',
