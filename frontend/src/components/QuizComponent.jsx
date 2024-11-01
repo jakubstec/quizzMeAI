@@ -149,43 +149,58 @@ function getPreviousSection(section) {
 }
 
 
-  const handleOptionSelect = (option) => {
-    let isCorrect = 0;
+const handleOptionSelect = (option) => {
+  let isCorrect = 0;
 
-    if (currentSection === "fillTheGaps") {
-      const isFillTheGapsCorrect = (option, correct) => {
-        const selectedValues = Object.values(option);
+  if (currentSection === "fillTheGaps") {
+    const isFillTheGapsCorrect = (option, correct) => {
+      const selectedValues = Object.values(option);
 
-        return selectedValues.length === correct.length && selectedValues.every((value, index) => value === correct[index]);
-      };
-      
-      isCorrect = isFillTheGapsCorrect(option, currentQuestion.correct);
-    } else {
-      isCorrect = option === currentQuestion.correct;
-    }
+      return (
+        selectedValues.length === correct.length &&
+        selectedValues.every((value, index) => value === correct[index])
+      );
+    };
+
+    isCorrect = isFillTheGapsCorrect(option, currentQuestion.correct);
+
     setResponses((prevResponses) => ({
       ...prevResponses,
       [currentSection]: {
         ...prevResponses[currentSection],
         [currentQuestionIndex]: {
           option,
-          isCorrect
-        }
-      }
+          isCorrect,
+        },
+      },
     }));
+  } else {
+    isCorrect = option === currentQuestion.correct;
 
-
-    setScore((prevScore) => {
-      const prevAnswer = responses[currentSection]?.[currentQuestionIndex];
-      if(prevAnswer) {
-        if(prevAnswer.isCorrect && !isCorrect) return prevScore - 1;
-        if(!prevAnswer.isCorrect && isCorrect) return prevScore + 1;
-      } else {
-        return isCorrect ? prevScore + 1 : prevScore;
-      }
-      return prevScore;
-    })
+    setResponses((prevResponses) => ({
+      ...prevResponses,
+      [currentSection]: {
+        ...prevResponses[currentSection],
+        [currentQuestionIndex]: {
+          option,
+          isCorrect,
+        },
+      },
+    }));
   }
+
+  setScore((prevScore) => {
+    const prevAnswer = responses[currentSection]?.[currentQuestionIndex];
+    if (prevAnswer) {
+      if (prevAnswer.isCorrect && !isCorrect) return prevScore - 1;
+      if (!prevAnswer.isCorrect && isCorrect) return prevScore + 1;
+    } else {
+      return isCorrect ? prevScore + 1 : prevScore;
+    }
+    return prevScore;
+  });
+};
+
 
   function collectIncorrectQuestions() {
     const incorrect = [];
@@ -271,7 +286,7 @@ function getPreviousSection(section) {
     });
 
     if (filteredIncorrectQuestions.length === 0) {
-        return <p>No incorrect questions to review for the active sections.</p>;
+        return <p>No incorrect questions to review for the active sections. Perfect!</p>;
     }
 
     return (
@@ -334,7 +349,7 @@ function getPreviousSection(section) {
       <div className="flex justify-center items-center min-h-screen mt-8">
         <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-2xl">
           <h2 className="text-xl font-bold mb-4">Quiz Results</h2>
-          <p>Your Score: {score} out of {totalQuestions}</p>
+          <p>Your Score: {score} correct answers!</p>
           <br/>
           {renderIncorrectQuestions()}
         </div>

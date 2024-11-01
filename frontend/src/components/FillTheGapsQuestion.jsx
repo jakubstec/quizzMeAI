@@ -16,7 +16,7 @@ const FillTheGapsQuestion = ({ question, selectedOptions, onOptionSelect, questi
               name={gap}
               className="w-full p-2 border border-gray-300 rounded"
               value={selectedOptions[gap] || ""}
-              onChange={(e) => onOptionSelect(gap, e.target.value)}
+              onChange={(e) => onOptionSelect({ ...selectedOptions, [gap]: e.target.value })}
             >
               <option value="" disabled>Select an option</option>
               {Object.entries(options[gap]).map(([key, value]) => (
