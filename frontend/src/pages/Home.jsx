@@ -86,6 +86,7 @@ const Home = () => {
       selectedDifficulty
     };
     try {
+      // change to vercel app
       const response = await fetch('http://localhost:5000/', {
         method: 'POST',
         headers: {
