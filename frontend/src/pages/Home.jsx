@@ -86,7 +86,6 @@ const Home = () => {
       selectedDifficulty
     };
     try {
-      // change to vercel app
       const response = await fetch('https://quizz-me-ai.vercel.app/', {
         method: 'POST',
         headers: {
