@@ -84,6 +84,7 @@ PyJWT==2.3.0
 pyparsing==2.4.7
 python-apt==2.4.0+ubuntu3
 python-dateutil==2.8.1
+python-dotenv==1.0.1
 pythran==0.10.0
 pytz==2022.1
 PyYAML==5.4.1
