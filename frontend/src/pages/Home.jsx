@@ -79,9 +79,6 @@ const Home = () => {
             questionDistribution[type] = Math.ceil(totalQuestionsCount * basePercentage);
         }
     });
-    
-    console.log(totalQuestionsCount);
-    console.log(questionDistribution);
 
     const dataToSend = {
       input: !isFileMode ? inputValue : fileToText,
