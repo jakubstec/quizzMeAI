@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MultipleChoiceQuestion from './MultipleChoiceQuestion';
 import TrueFalseQuestion from './TrueFalseQuestion';
 import OpenQuestion from './OpenQuestion';
@@ -26,6 +26,23 @@ const QuizComponent = ({ quizData, checkedItems, totalQuestions }) => {
   const [quizComplete, setQuizComplete] = useState(false);
   const [incorrectQuestions, setIncorrectQuestions] = useState([]);
 
+  const currentQuestions = quizData[currentSection];
+  const currentQuestionIndex = sectionIndices[currentSection] || 0;
+  const totalQuestionsInCurrentSection = currentQuestions ? currentQuestions.length : 0;
+  const currentQuestion = currentQuestions[currentQuestionIndex];
+
+
+  useEffect(() => {
+    if (totalQuestionsInCurrentSection === 0) {
+      const nextSection = getNextSection(currentSection);
+      if (nextSection) {
+        setCurrentSection(nextSection);
+      } else {
+        setQuizComplete(true);
+      }
+    }
+  }, [totalQuestionsInCurrentSection, currentSection]);
+
   function getDefaultSection(checkedItems) {
     const sections = ['multipleChoice', 'trueFalse', 'openQuestions', 'fillTheGaps'];
     for (let i = 0; i < checkedItems.length; i++) {
@@ -38,22 +55,6 @@ const QuizComponent = ({ quizData, checkedItems, totalQuestions }) => {
   if (!quizData) {
     return <div>No quiz data available</div>;
   }
-
-  const currentQuestions = quizData[currentSection];
-  const currentQuestionIndex = sectionIndices[currentSection] || 0;
-  const totalQuestionsInCurrentSection = currentQuestions ? currentQuestions.length : 0;
-
-  if (totalQuestionsInCurrentSection === 0) {
-    const nextSection = getNextSection(currentSection);
-    if (nextSection) {
-      setCurrentSection(nextSection); 
-    } else {
-      setQuizComplete(true)
-    }
-    return null;
-  }
-
-  const currentQuestion = currentQuestions[currentQuestionIndex];
 
   if (!currentQuestions || currentQuestions.length === 0) {
     return <div>No questions available in this section</div>;
@@ -149,14 +150,17 @@ function getPreviousSection(section) {
 }
 
 
-const handleOptionSelect = (gap, value) => {
+const handleOptionSelect = (gapOrValue, value = null) => {
   if (currentSection === "fillTheGaps") {
+    const gap = gapOrValue;
+    
     setSelectedOption((prevSelected) => ({
       ...prevSelected,
       [gap]: value,
     }));
     
     const isCorrect = isFillTheGapsCorrect({ [gap]: value }, currentQuestion.correct);
+    
     setResponses((prevResponses) => ({
       ...prevResponses,
       [currentSection]: {
@@ -168,13 +172,15 @@ const handleOptionSelect = (gap, value) => {
       }
     }));
   } else {
-    const isCorrect = value === currentQuestion.correct;
+    const selectedValue = gapOrValue;
+    const isCorrect = selectedValue === currentQuestion.correct;
+    
     setResponses((prevResponses) => ({
       ...prevResponses,
       [currentSection]: {
         ...prevResponses[currentSection],
         [currentQuestionIndex]: {
-          option: value,
+          option: selectedValue,
           isCorrect
         }
       }
