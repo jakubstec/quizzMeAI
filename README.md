@@ -93,3 +93,6 @@ Everything should be working correctly!
 
 ## ✍️ Authors <a name = "authors"></a>
 - [@jakubstec](https://github.com/jakubstec)
+
+## ❕ Note
+- Despite carefully engineered prompt, Gemini sometimes messes up and doesn't want to cooperate so weird app bugs and anomalies may occur, sorry!
