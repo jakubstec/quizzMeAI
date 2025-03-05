@@ -151,6 +151,8 @@ function getPreviousSection(section) {
 
 
 const handleOptionSelect = (gapOrValue, value = null) => {
+  let isCorrect = false;
+
   if (currentSection === "fillTheGaps") {
     const gap = gapOrValue;
     
@@ -159,7 +161,7 @@ const handleOptionSelect = (gapOrValue, value = null) => {
       [gap]: value,
     }));
     
-    const isCorrect = isFillTheGapsCorrect({ [gap]: value }, currentQuestion.correct);
+    isCorrect = isFillTheGapsCorrect({ [gap]: value }, currentQuestion.correct);
     
     setResponses((prevResponses) => ({
       ...prevResponses,
@@ -173,7 +175,7 @@ const handleOptionSelect = (gapOrValue, value = null) => {
     }));
   } else {
     const selectedValue = gapOrValue;
-    const isCorrect = selectedValue === currentQuestion.correct;
+    isCorrect = selectedValue === currentQuestion.correct;
     
     setResponses((prevResponses) => ({
       ...prevResponses,
@@ -185,6 +187,10 @@ const handleOptionSelect = (gapOrValue, value = null) => {
         }
       }
     }));
+  }
+
+  if (isCorrect) {
+    setScore((prevScore) => prevScore + 1);
   }
 };
 
